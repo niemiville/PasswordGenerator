@@ -1,24 +1,93 @@
 ﻿using System.Text;
 
-class PasswordGenerator
+public class PasswordGenerator
 {
-
-    static void Main()
+    private static void Main(string[] args)
     {
-        bool isRunning = true;
-        while (isRunning)
+        if (args.Length == 0)
         {
-            GetExamplePasswords();
-            Console.Write("Write \"q\" to quit, anything else regenerates passwords: ");
-            var userInput = Console.ReadLine();
-            if (userInput == "q") {
-                isRunning = false;
+            bool isRunning = true;
+            while (isRunning)
+            {
+                PrintExamplePasswords();
+                Console.Write("Write \"q\" to quit, enter regenerates passwords: ");
+                var userInput = Console.ReadLine();
+                if (userInput == "q")
+                {
+                    isRunning = false;
+                }
+                Console.WriteLine();
             }
-            Console.WriteLine();
+        }
+        else
+        {
+            GeneratePasswordFromUserInput(args);
+            Console.Write("\nPress any key to exit...");
+            Console.ReadKey();
         }
     }
 
-    private static void GetExamplePasswords()
+    public static void GeneratePasswordFromUserInput(string[] args)
+    {
+        int amount, length;
+        PasswordType type;
+        HandleArgs(args, out amount, out length, out type);
+        List<string> passwords = GetPasswords(amount, length, type);
+        PrintPasswords(passwords);
+    }
+
+    public static void PrintPasswords(List<string> passwords)
+    {
+        foreach (var password in passwords)
+        {
+            Console.WriteLine(password);
+        }
+    }
+
+    public static void HandleArgs(string[] args, out int amount, out int length, out PasswordType type)
+    {
+        amount = ReadPasswordAmount(args[0]);
+        length = ReadPasswordLength(args[1]);
+        type = ReadPasswordType(args[2]);
+    }
+
+    public static int ReadPasswordAmount(string amountArg)
+    {
+        if (string.IsNullOrEmpty(amountArg))
+        {
+            return 1;
+        }
+        else
+        {
+            return Convert.ToInt32(amountArg);
+        }
+    }
+
+    public static int ReadPasswordLength(string lengthArg)
+    {
+        if (string.IsNullOrEmpty(lengthArg))
+        {
+            return 1;
+        }
+        else
+        {
+            return Convert.ToInt32(lengthArg);
+        }
+    }
+
+    public static PasswordType ReadPasswordType(string typeArg)
+    {
+        if (string.IsNullOrEmpty(typeArg))
+        {
+            return PasswordType.LettersNumbers;
+        }
+        else
+        {
+            return (PasswordType)Enum.Parse(typeof(PasswordType), typeArg);
+        }
+    }
+
+    private static void PrintExamplePasswords()
     {
         var numbersLen4 = GetPasswords(3, 4, PasswordType.Numbers);
         var numbersLen6 = GetPasswords(3, 6, PasswordType.Numbers);
@@ -26,9 +95,9 @@ class PasswordGenerator
         var basicLen20 = GetPasswords(3, 20, PasswordType.LettersNumbers);
         var specialLen15 = GetPasswords(3, 15, PasswordType.LettersNumbersSpecials);
         List<List<string>> pws = new() { numbersLen4, numbersLen6, basicLen12, basicLen20, specialLen15 };
-        foreach(var p in pws)
+        foreach (var p in pws)
         {
-            foreach(var s in p)
+            foreach (var s in p)
             {
                 Console.WriteLine(s);
             }
@@ -44,7 +113,7 @@ class PasswordGenerator
         LettersNumbersSpecials = 3
     }
 
-    readonly static Dictionary<PasswordType, string> characterSets = new Dictionary<PasswordType, string>
+    private static readonly Dictionary<PasswordType, string> characterSets = new Dictionary<PasswordType, string>
         {
             { PasswordType.Numbers, "0123456789" },
             { PasswordType.Letters, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" },
